@@ -411,6 +411,11 @@ pm-footer { display: block; }
 .ticker-track span{padding:0 26px;font-family:var(--fh);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#000;white-space:nowrap}
 .ticker-track span.dot{padding:0 4px;opacity:.45}
 
+
+/* ── GOOGLE SIGN-IN BUTTON ── */
+.g_id_signin { width: 100% !important; margin-bottom: 16px; }
+.g_id_signin > div { width: 100% !important; }
+.g_id_signin iframe { border-radius: 4px !important; }
 /* ── CURSOR FIX ── */
 .nav-links a, .mobile-menu a, .nav-logo, .btn-nav-cta,
 .footer-col a, .srv-link, .blog-card, .plan button,
@@ -726,6 +731,9 @@ tr:hover td{background:rgba(13,14,53,.5)}
 @media(max-width:860px){.blog-grid{grid-template-columns:1fr 1fr}.newsletter{flex-direction:column}}
 @media(max-width:560px){.blog-grid{grid-template-columns:1fr}}
 </style>
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <meta name="google-signin-client_id" content="915062910392-il632qqq3rs193s5m77e03tdvcutkb6t.apps.googleusercontent.com">
 </head>
 <body>
 <!-- ════ SINGLE SHARED NAV ════ -->
@@ -2080,9 +2088,43 @@ function submitLead() {
   }, 5000);
 }
 
-/* ── GOOGLE PLACEHOLDER ── */
+/* ── GOOGLE SIGN-IN HANDLER ── */
+function handleGoogleCredential(response) {
+  // Decode the JWT credential to get user info
+  var credential = response.credential;
+  var parts = credential.split('.');
+  var payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+  
+  var name = payload.name || '';
+  var email = payload.email || '';
+  
+  // Auto-fill the form
+  var fnameEl = document.getElementById('fname');
+  var femailEl = document.getElementById('femail');
+  if (fnameEl) fnameEl.value = name;
+  if (femailEl) femailEl.value = email;
+  
+  // Hide the Google button area
+  var gBtn = document.querySelector('.g_id_signin');
+  var gLoad = document.getElementById('g_id_onload');
+  if (gBtn) gBtn.style.display = 'none';
+  if (gLoad) gLoad.style.display = 'none';
+  
+  // Show success message in button area
+  var divider = document.querySelector('.modal-divider');
+  if (divider) {
+    divider.insertAdjacentHTML('beforebegin', 
+      '<div style="background:rgba(67,83,255,0.1);border:1px solid rgba(67,83,255,0.3);padding:10px 14px;border-radius:4px;font-family:var(--fb);font-size:13px;color:#fff;margin-bottom:16px;">'+
+      '✓ Signed in as <strong>' + email + '</strong></div>'
+    );
+  }
+}
+
 function handleGoogle() {
-  alert('Google Sign-In requires OAuth credentials. This is a placeholder.');
+  // Fallback - trigger Google Sign-In programmatically
+  if (window.google && window.google.accounts) {
+    window.google.accounts.id.prompt();
+  }
 }
 
 /* ── FAQ ── */
